@@ -1,17 +1,18 @@
 #!/bin/sh
 
-echo "========================================"
+echo "=========================================="
 echo "            ZALZALA UPDATE"
-echo "========================================"
+echo "=========================================="
 echo "Made by Pakistan ORAKXAI Anonymous"
 echo
 
-if command -v git >/dev/null 2>&1; then
-    git pull
-else
-    echo "[-] Git is not installed."
+if ! command -v git >/dev/null 2>&1
+then
+    echo "[-] Git is required."
     exit 1
 fi
 
+git pull
+
 echo
-echo "[+] Update process completed."
+echo "[+] ZalZala updated."
