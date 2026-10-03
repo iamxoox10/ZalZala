@@ -2,8 +2,8 @@ cd ~/ZalZala
 cat > core/cli.py <<'PY'
 import argparse
 
-from core.engine import run_scan
 from core.banner import show_banner
+from core.engine import ZalZalaEngine
 
 VERSION = "1.0.0"
 
@@ -11,18 +11,18 @@ VERSION = "1.0.0"
 def build_parser():
     parser = argparse.ArgumentParser(
         prog="zalzala",
-        description="ZalZala - Security Assessment & Recon Tool"
+        description="ZalZala Security Recon Framework"
     )
 
     parser.add_argument(
         "-u", "--url",
-        help="Target URL or domain"
+        help="Authorized target URL/domain"
     )
 
     parser.add_argument(
         "--full",
         action="store_true",
-        help="Run all available assessment modules"
+        help="Run full security assessment"
     )
 
     parser.add_argument(
@@ -40,31 +40,19 @@ def build_parser():
     parser.add_argument(
         "--headers",
         action="store_true",
-        help="Check HTTP security headers"
+        help="Check security headers"
     )
 
     parser.add_argument(
         "--tls",
         action="store_true",
-        help="Analyze TLS/SSL configuration"
-    )
-
-    parser.add_argument(
-        "--ports",
-        action="store_true",
-        help="Check common TCP ports"
-    )
-
-    parser.add_argument(
-        "--subdomains",
-        action="store_true",
-        help="Check common subdomains"
+        help="Analyze TLS configuration"
     )
 
     parser.add_argument(
         "--cms",
         action="store_true",
-        help="Detect common CMS/frameworks"
+        help="Detect CMS/technologies"
     )
 
     parser.add_argument(
@@ -84,13 +72,13 @@ def build_parser():
 
 def show_info():
     print()
-    print("ZalZala")
+    print("ZalZala Security Recon Framework")
     print("=" * 45)
-    print("Security Assessment & Recon Tool")
     print(f"Version : {VERSION}")
     print("Author  : Pakistan ORAKXAI Anonymous")
     print()
-    print("For authorized security testing, CTFs and labs.")
+    print("For authorized security assessments,")
+    print("CTFs and laboratory environments.")
     print()
 
 
@@ -107,49 +95,27 @@ def run():
         parser.print_help()
         return
 
+    engine = ZalZalaEngine(args.url)
+
     if args.full:
-        modules = [
-            "web",
-            "dns",
-            "headers",
-            "tls",
-            "ports",
-            "subdomains",
-            "cms"
-        ]
-    else:
-        modules = []
+        engine.full_scan()
+        return
 
-        if args.web:
-            modules.append("web")
+    # Current engine has a complete web_scan method.
+    # Individual module execution will be added through
+    # the engine as the framework expands.
+    if args.web or not any([
+        args.dns,
+        args.headers,
+        args.tls,
+        args.cms
+    ]):
+        engine.web_scan()
+        return
 
-        if args.dns:
-            modules.append("dns")
-
-        if args.headers:
-            modules.append("headers")
-
-        if args.tls:
-            modules.append("tls")
-
-        if args.ports:
-            modules.append("ports")
-
-        if args.subdomains:
-            modules.append("subdomains")
-
-        if args.cms:
-            modules.append("cms")
-
-        if not modules:
-            modules.append("web")
-
-    try:
-        run_scan(args.url, modules)
-    except KeyboardInterrupt:
-        print("\n[!] Scan interrupted.")
-    except Exception as e:
-        print(f"\n[!] Error: {e}")
+    # For now, --full is the supported multi-module mode.
+    print("[!] Individual module mode is not yet connected.")
+    print("[!] Use --full for the complete assessment.")
 
 
 if __name__ == "__main__":
