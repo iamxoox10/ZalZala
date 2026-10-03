@@ -4,7 +4,7 @@ from core.banner import show_banner
 from core.engine import ZalZalaEngine
 
 
-def build_parser():
+def run():
     parser = argparse.ArgumentParser(
         prog="zalzala",
         description="ZalZala Security Recon Framework"
@@ -13,13 +13,19 @@ def build_parser():
     parser.add_argument(
         "-u",
         "--url",
-        help="Authorized target URL"
+        help="Authorized target URL/domain"
+    )
+
+    parser.add_argument(
+        "--full",
+        action="store_true",
+        help="Run full security assessment"
     )
 
     parser.add_argument(
         "--version",
         action="version",
-        version="ZalZala 0.1.0"
+        version="ZalZala 1.0.0"
     )
 
     parser.add_argument(
@@ -28,25 +34,24 @@ def build_parser():
         help="Show framework information"
     )
 
-    return parser
-
-
-def run():
-    show_banner()
-
-    parser = build_parser()
     args = parser.parse_args()
 
+    show_banner()
+
     if args.info:
-        print("ZalZala Security Recon Framework")
-        print("Version : 0.1.0")
-        print("Author  : Pakistan ORAKXAI Anonymous")
-        print("Platform: Linux / Termux / iSH")
+        print("Name     : ZalZala")
+        print("Version  : 1.0.0")
+        print("Author   : Pakistan ORAKXAI Anonymous")
+        print("Platform : Linux / Termux / iSH")
         return
 
-    if args.url:
-        engine = ZalZalaEngine(args.url)
-        engine.start()
+    if not args.url:
+        parser.print_help()
         return
 
-    parser.print_help()
+    engine = ZalZalaEngine(args.url)
+
+    if args.full:
+        engine.full_scan()
+    else:
+        engine.web_scan()
