@@ -1,8 +1,9 @@
+cd ~/ZalZala
+cat > core/cli.py <<'PY'
 import argparse
 
 from core.engine import run_scan
 from core.banner import show_banner
-
 
 VERSION = "1.0.0"
 
@@ -75,7 +76,7 @@ def build_parser():
     parser.add_argument(
         "--info",
         action="store_true",
-        help="Show information about ZalZala"
+        help="Show framework information"
     )
 
     return parser
@@ -89,8 +90,7 @@ def show_info():
     print(f"Version : {VERSION}")
     print("Author  : Pakistan ORAKXAI Anonymous")
     print()
-    print("Designed for authorized security testing,")
-    print("CTFs, labs, and systems you have permission to test.")
+    print("For authorized security testing, CTFs and labs.")
     print()
 
 
@@ -107,8 +107,6 @@ def run():
         parser.print_help()
         return
 
-    modules = []
-
     if args.full:
         modules = [
             "web",
@@ -117,9 +115,11 @@ def run():
             "tls",
             "ports",
             "subdomains",
-            "cms",
+            "cms"
         ]
     else:
+        modules = []
+
         if args.web:
             modules.append("web")
 
@@ -141,17 +141,17 @@ def run():
         if args.cms:
             modules.append("cms")
 
-    # If only URL is supplied, run the basic web assessment.
-    if not modules:
-        modules = ["web"]
+        if not modules:
+            modules.append("web")
 
     try:
         run_scan(args.url, modules)
     except KeyboardInterrupt:
-        print("\n[!] Scan interrupted by user.")
-    except Exception as exc:
-        print(f"\n[!] Error: {exc}")
+        print("\n[!] Scan interrupted.")
+    except Exception as e:
+        print(f"\n[!] Error: {e}")
 
 
 if __name__ == "__main__":
     run()
+PY
