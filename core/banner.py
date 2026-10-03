@@ -6,10 +6,10 @@ BANNER = r"""
 ███████╗██║  ██║███████╗███████╗██║  ██║███████╗██║  ██║
 ╚══════╝╚═╝  ╚═╝╚══════╝╚══════╝╚═╝  ╚═╝╚══════╝╚═╝  ╚═╝
 
-        Z A L Z A L A
-   Security Recon Framework
+             Z A L Z A L A
+        Security Recon Framework
 
-   Made by Pakistan ORAKXAI Anonymous
+        Made by Pakistan ORAKXAI Anonymous
 """
 
 
