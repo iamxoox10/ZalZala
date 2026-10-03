@@ -1,4 +1,6 @@
-# ZalZala v0.1.0
-# Core currently uses Python standard library only.
-
+# ZalZala 1.0.0
+#
+# Core uses Python standard library.
+# No external packages required.
+#
 # Made by Pakistan ORAKXAI Anonymous
