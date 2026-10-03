@@ -1,5 +1,19 @@
 {
-    "version": "0.1.0",
+    "version": "1.0.0",
     "author": "Pakistan ORAKXAI Anonymous",
-    "technologies": {}
+    "technologies": {
+        "WordPress": [
+            "wp-content",
+            "wp-includes"
+        ],
+        "Drupal": [
+            "drupal"
+        ],
+        "Joomla": [
+            "joomla"
+        ],
+        "Shopify": [
+            "shopify"
+        ]
+    }
 }
