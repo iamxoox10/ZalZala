@@ -1,12 +1,9 @@
 from urllib.parse import urlparse
 
+from modules.web import analyze
+
 
 class ZalZalaEngine:
-    """
-    Core engine for ZalZala.
-
-    Made by Pakistan ORAKXAI Anonymous
-    """
 
     def __init__(self, target):
         self.target = target
@@ -23,12 +20,10 @@ class ZalZalaEngine:
         target = self.normalize_target()
         parsed = urlparse(target)
 
-        if not parsed.hostname:
-            return False
-
-        return True
+        return bool(parsed.hostname)
 
     def start(self):
+
         print("\n[+] ZalZala engine started")
 
         if not self.validate_target():
@@ -38,7 +33,33 @@ class ZalZalaEngine:
         target = self.normalize_target()
 
         print(f"[+] Target : {target}")
-        print("[+] Status : READY")
+        print("[+] Status : SCANNING")
         print()
-        print("[*] Recon modules will be loaded here.")
-        print("[*] Use only on systems you own or are authorized to test.")
+
+        print("[*] Running HTTP analysis...")
+
+        result = analyze(target)
+
+        print()
+        print("────────────────────────────────")
+        print("        HTTP ANALYSIS")
+        print("────────────────────────────────")
+
+        if "error" in result:
+            print(f"[-] Error       : {result['error']}")
+            return
+
+        print(f"[+] Status      : {result['status']}")
+        print(f"[+] Final URL   : {result['final_url']}")
+        print(f"[+] Server      : {result['server']}")
+        print(f"[+] Content-Type: {result['content_type']}")
+        print(f"[+] Page Title  : {result['title']}")
+
+        print()
+        print("[+] Response Headers")
+
+        for key, value in result["headers"].items():
+            print(f"    {key}: {value}")
+
+        print()
+        print("[+] HTTP analysis completed.")
