@@ -1,65 +1,110 @@
 from urllib.parse import urlparse
 
-from modules.web import analyze
+from modules.web import scan_web
+from modules.headers import analyze_headers
+from modules.dns import analyze_dns
+from modules.tls import analyze_tls
+from modules.cms import detect_cms
+from reports.generator import save_report
 
 
 class ZalZalaEngine:
 
     def __init__(self, target):
-        self.target = target
+        self.target = self.normalize(target)
+        self.results = {}
 
-    def normalize_target(self):
-        target = self.target.strip()
+    def normalize(self, target):
+        target = target.strip()
 
         if not target.startswith(("http://", "https://")):
             target = "https://" + target
 
         return target.rstrip("/")
 
-    def validate_target(self):
-        target = self.normalize_target()
-        parsed = urlparse(target)
-
+    def valid(self):
+        parsed = urlparse(self.target)
         return bool(parsed.hostname)
 
-    def start(self):
-
-        print("\n[+] ZalZala engine started")
-
-        if not self.validate_target():
+    def web_scan(self):
+        if not self.valid():
             print("[-] Invalid target")
             return
 
-        target = self.normalize_target()
+        print(f"\n[+] Target: {self.target}")
+        print("[+] Running web analysis...\n")
 
-        print(f"[+] Target : {target}")
-        print("[+] Status : SCANNING")
-        print()
+        result = scan_web(self.target)
+        self.results["web"] = result
 
-        print("[*] Running HTTP analysis...")
+        self.print_web(result)
 
-        result = analyze(target)
+        path = save_report(self.target, self.results)
+        print(f"\n[+] Report: {path}")
 
-        print()
-        print("────────────────────────────────")
-        print("        HTTP ANALYSIS")
-        print("────────────────────────────────")
-
-        if "error" in result:
-            print(f"[-] Error       : {result['error']}")
+    def full_scan(self):
+        if not self.valid():
+            print("[-] Invalid target")
             return
 
-        print(f"[+] Status      : {result['status']}")
-        print(f"[+] Final URL   : {result['final_url']}")
-        print(f"[+] Server      : {result['server']}")
-        print(f"[+] Content-Type: {result['content_type']}")
-        print(f"[+] Page Title  : {result['title']}")
+        print(f"\n[+] Target: {self.target}")
+        print("[+] Starting full assessment\n")
 
-        print()
-        print("[+] Response Headers")
+        print("[1/5] Web analysis...")
+        self.results["web"] = scan_web(self.target)
 
-        for key, value in result["headers"].items():
+        print("[2/5] Security headers...")
+        self.results["headers"] = analyze_headers(
+            self.results["web"].get("headers", {})
+        )
+
+        hostname = urlparse(self.target).hostname
+
+        print("[3/5] DNS analysis...")
+        self.results["dns"] = analyze_dns(hostname)
+
+        print("[4/5] TLS analysis...")
+        self.results["tls"] = analyze_tls(hostname)
+
+        print("[5/5] Technology/CMS detection...")
+        self.results["cms"] = detect_cms(
+            self.results["web"]
+        )
+
+        print("\n========== RESULTS ==========\n")
+
+        self.print_web(self.results["web"])
+
+        print("\n[+] Security Headers")
+        for item in self.results["headers"]:
+            print(f"    {item}")
+
+        print("\n[+] DNS")
+        for key, value in self.results["dns"].items():
             print(f"    {key}: {value}")
 
-        print()
-        print("[+] HTTP analysis completed.")
+        print("\n[+] TLS")
+        for key, value in self.results["tls"].items():
+            print(f"    {key}: {value}")
+
+        print("\n[+] Technology")
+        for item in self.results["cms"]:
+            print(f"    {item}")
+
+        path = save_report(self.target, self.results)
+
+        print("\n=============================")
+        print(f"[+] Assessment complete")
+        print(f"[+] Report: {path}")
+
+    def print_web(self, result):
+        print("[+] HTTP")
+
+        for key in (
+            "status",
+            "final_url",
+            "server",
+            "content_type",
+            "title"
+        ):
+            print(f"    {key}: {result.get(key)}")
